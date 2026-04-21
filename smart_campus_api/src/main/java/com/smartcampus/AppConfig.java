@@ -1,4 +1,4 @@
-package com.Smartcampus;
+package com.smartcampus;
 import org.glassfish.jersey.server.ResourceConfig;
 import jakarta.ws.rs.ApplicationPath;
 
