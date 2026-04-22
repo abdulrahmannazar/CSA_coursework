@@ -99,21 +99,7 @@ curl -X POST http://localhost:8080/smart-campus-api/api/v1/sensors/TEMP-01/readi
 
 ---
 
-# 📝 Conceptual Report (Reflection Answers)
 
-* **JAX-RS Lifecycle:** JAX-RS resources are request-scoped; a new instance is created per request. My `DataStore` is a **Singleton** to ensure data persists across these short-lived instances.
-* **HATEOAS Benefits:** It makes the API self-documenting. A client only needs the root URL to discover all other endpoints, reducing the coupling between client knowledge and server structure.
-* **IDs vs Full Objects:** Returning only IDs in the Room model (`sensorIds`) reduces the payload size and network bandwidth. However, full objects reduce "chattiness" by preventing the client from making multiple extra calls.
-* **DELETE Idempotency:** My `DELETE` method is idempotent because the first call removes the room; subsequent identical calls do not change the server state (the room remains gone).
-* **JSON Mismatch:** If a client sends non-JSON data, the `@Consumes(MediaType.APPLICATION_JSON)` annotation triggers a **415 Unsupported Media Type** error automatically.
-* **Query vs Path Filtering:** I use **Path Parameters** for resource identity (unique IDs) and **Query Parameters** for non-identifying logic like filtering sensors by type.
-* **Sub-resource Locator Benefits:** This pattern allows the `SensorReadingResource` to be managed as a child of a specific Sensor, making the code modular and the URI hierarchy logical.
-* **Side-Effects:** When a Reading is POSTed, the parent Sensor's `currentValue` is updated. This ensures **Data Consistency**, so a GET on the Sensor always reflects the latest telemetry.
-* **422 vs 404:** I return **422 Unprocessable Entity** when a Sensor references a non-existent Room. This distinguishes between a bad URL (404) and a logically invalid data relationship (422).
-* **Cybersecurity & Stack Traces:** Exposing stack traces reveals internal class names and library versions. Attackers use this "Information Disclosure" to find specific vulnerabilities in your tech stack.
-* **Filters vs Manual Logging:** Using a `ContainerRequestFilter` ensures **Cross-Cutting Concerns** (logging) are handled in one place, keeping resource classes focused on business logic.
-
----
 
 # 🏛️ Technical Quality & Security Analysis
 * **Leak-Proof Exception Mapping:** I implemented `ExceptionMapper<Throwable>` to intercept every possible error. This ensures the API always returns a clean JSON error body rather than a default Tomcat HTML error page.
