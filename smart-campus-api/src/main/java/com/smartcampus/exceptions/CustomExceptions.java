@@ -1,13 +1,21 @@
 package com.smartcampus.exceptions;
 
 public class CustomExceptions {
-    public static class RoomNotEmptyException extends RuntimeException {
-        public RoomNotEmptyException(String msg) { super(msg); }
+    
+    public static class RoomAlreadyExistsException extends RuntimeException {
+        public RoomAlreadyExistsException(String message) { super(message); }
     }
+
+    public static class RoomNotEmptyException extends RuntimeException {
+        public RoomNotEmptyException(String message) { super(message); }
+    }
+
     public static class LinkedResourceNotFoundException extends RuntimeException {
-        public LinkedResourceNotFoundException(String msg) { super(msg); }
+        public LinkedResourceNotFoundException(String message) { super(message); }
     }
     public static class SensorUnavailableException extends RuntimeException {
-        public SensorUnavailableException(String msg) { super(msg); }
+    public SensorUnavailableException(String message) {
+        super(message);
     }
+}
 }
