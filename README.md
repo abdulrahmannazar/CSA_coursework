@@ -106,6 +106,15 @@ curl -X POST http://localhost:8080/smart-campus-api/api/v1/sensors/TEMP-01/readi
 * **Data Integrity:** The `DELETE` logic in `SensorRoomResource` includes a safety check that prevents a Room from being deleted if its `sensorIds` list is not empty, preventing orphaned sensors.
 * **Thread Safety:** By using `ConcurrentHashMap` in the `DataStore`, the API handles multiple concurrent Postman requests safely without locking or data loss.
 
+🛡️ Task 5.2: Global Safety Net & Cybersecurity Mitigation
+I have implemented a catch-all ExceptionMapper<Throwable> within ExceptionMappers.java to act as a global safety net for the Smart Campus API. This implementation is critical for preventing Information Disclosure, a common cybersecurity vulnerability.
+
+Risk Mitigation: By default, unhandled exceptions in a Java environment like Tomcat 9 can leak raw stack traces to the end-user. These traces are dangerous because they expose internal file paths, specific library versions (such as Jersey or Jackson), and the underlying business logic flows to potential attackers.
+
+Reconnaissance Defense: Attackers often use these technical details during the "reconnaissance" phase of an exploit to find known vulnerabilities in specific software versions. My implementation intercepts every possible Throwable and returns a sanitized 500 Internal Server Error in a structured JSON format.
+
+Implementation Detail: This ensures that even if a critical code failure occurs, the consumer only sees a generic error message, while the actual technical error is hidden to protect the integrity of the campus infrastructure.
+
 ---
 
 # 📁 Project Structure

@@ -49,4 +49,23 @@ public class ExceptionMappers {
                     .type(MediaType.APPLICATION_JSON).build();
         }
     }
+    
+    
+    @Provider
+    public static class GlobalSafetyNet implements ExceptionMapper<Throwable> {
+        @Override
+        public Response toResponse(Throwable e) {
+            // Logs the error internally for the developer to see in the console
+            e.printStackTrace(); 
+
+            // Returns a professional, sanitized JSON body to the consumer
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of(
+                        "error", "Internal Server Error",
+                        "message", "A critical system error occurred. Technical details have been hidden for security."
+                    ))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
 }
