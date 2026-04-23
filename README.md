@@ -116,6 +116,121 @@ Reconnaissance Defense: Attackers often use these technical details during the "
 Implementation Detail: This ensures that even if a critical code failure occurs, the consumer only sees a generic error message, while the actual technical error is hidden to protect the integrity of the campus infrastructure.
 
 ---
+# Report Q & A
+
+
+Question 1 
+
+How does the JAX-RS resource lifecycle affect data persistence, and how is synchronization managed 
+for in-memory data? 
+
+By default, JAX-RS resources are request-scoped, meaning the container creates a new instance for every 
+incoming HTTP request. Since this project uses in-memory data structures rather than a database, the 
+DataStore must be implemented as a Singleton to ensure data persists across multiple requests. To handle 
+concurrent access from multiple clients, I utilized thread-safe collections like ConcurrentHashMap to 
+synchronize data operations and prevent race conditions or data corruption. 
+
+
+Question 2  
+
+What are the specific architectural benefits of using HATEOAS for a discovery endpoint? 
+
+Implementing HATEOAS (Hypermedia as the Engine of Application State) in the discovery endpoint 
+(/api/v1/) makes the API self-documenting. This decouples the client from the server’s URI structure, 
+allowing the university to change resource paths without breaking the client application, as the client 
+dynamically discovers the current locations of the "rooms" and "sensors" collections via the provided links. 
+
+
+Question 3  
+
+Why is it advantageous to return a list of IDs rather than full objects in a resource collection 
+response? 
+
+In the Room resource, returning a list of Sensor IDs instead of full Sensor objects significantly reduces the 
+payload size and network bandwidth consumption. While returning full objects reduces "chattiness" by 
+preventing extra round-trips, returning IDs is more scalable for a campus-wide IoT infrastructure where a 
+single room might eventually host hundreds of devices. 
+   
+
+Question 4  
+
+Explain the concept of idempotency in the context of deleting resources. 
+
+The DELETE operation is idempotent because repeat requests result in the same final state on the server: 
+the resource is gone. Whether the server returns a 204 No Content for the first successful deletion or a 404 
+Not Found for subsequent attempts, the resulting side-effect (the non-existence of that resource) remains 
+identical. 
+
+
+Question 5  
+
+How does the API handle and validate invalid media types during request processing? 
+
+Using the @Consumes(MediaType.APPLICATION_JSON) annotation, the API explicitly restricts the 
+types of data it will accept. If a client attempts to send an unsupported format, such as XML or plain text, 
+the JAX-RS container automatically generates a 415 Unsupported Media Type response, protecting the 
+server from processing malformed data. 
+
+
+Question 6  
+
+When should Path Parameters be used instead of Query Parameters in a RESTful API? 
+
+Path Parameters are used for resource identification, such as targeting a specific unique Sensor ID. In 
+contrast, Query Parameters are used for non-identifying logic like filtering, sorting, or pagination—for 
+example, filtering a list of sensors by their type (e.g., ?type=CO2). 
+
+
+Question 7  
+
+What are the advantages of using the Sub-resource Locator pattern for nested resources? 
+
+Implementing /readings as a sub-resource locator within the Sensor resource creates a logical, modular 
+hierarchy. This ensures that telemetry data cannot exist in isolation and must always be accessed through 
+its parent sensor, making the API structure intuitive for monitoring specific hardware. 
+
+
+Question 8 
+
+How does the API ensure data consistency when performing operations that have side-effects? 
+
+When a new reading is POST to the telemetry endpoint, the parent Sensor’s currentValue is updated as an 
+automatic side-effect. This maintains data consistency by ensuring that any subsequent GET request for 
+that Sensor resource immediately reflects the most recent telemetry value without requiring manual data 
+aggregation. 
+
+
+Question 9 
+
+Why is a 422 Unprocessable Entity status code semantically superior to 404 for payload reference 
+issues? 
+
+A 422 Unprocessable Entity is used when a sensor registration fails because the provided Room ID does 
+not exist. This is semantically superior to a 404 Not Found because the endpoint URL itself is valid, but the 
+data within the request body contains a logical error (a bad reference), which helps developers distinguish 
+between routing issues and data integrity issues. 
+   
+
+Question 10 
+
+What are the cybersecurity risks associated with exposing raw Java stack traces to API consumers? 
+
+Exposing stack traces is a significant "Information Disclosure" risk that reveals internal server directory 
+structures, specific library versions, and logic flows to potential attackers. This information can be used for 
+reconnaissance to find specific vulnerabilities in the server's environment; therefore, a "Global Safety Net" 
+using an ExceptionMapper<Throwable> is implemented to hide these technical details and return a clean 
+JSON error instead. 
+
+
+Question 11  
+
+Why is it better to use a Container Filter for logging instead of manual logging within each resource? 
+
+Using a ContainerRequestFilter and ContainerResponseFilter handles "Cross-Cutting Concerns" centrally. 
+This ensures that every request and response is consistently logged for auditing and observability without 
+cluttering the business logic in the resource classes, making the codebase cleaner and easier to maintain. 
+
+---
 
 # 📁 Project Structure
 * `com.smartcampus.models`: POJO entities (Room, Sensor, Reading).
