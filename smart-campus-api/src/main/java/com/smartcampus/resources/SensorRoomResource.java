@@ -26,7 +26,7 @@ public class SensorRoomResource {
     public Response getOne(@PathParam("id") String id) {
         Room r = store.rooms.get(id);
         if (r == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException("Room with ID " + id + " does not exist.");
         }
         return Response.ok(r).build();
     }
@@ -49,7 +49,7 @@ public class SensorRoomResource {
         
         // Return 404 if room doesn't exist
         if (r == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException("Room with ID " + id + " does not exist.");
         }
 
         // TASK 2.4: Safety Logic - Dynamic check for sensors
@@ -58,6 +58,7 @@ public class SensorRoomResource {
         }
 
         store.rooms.remove(id);
-        return Response.noContent().build();
+        
+        return Response.ok("Room " + id + " has been successfully deleted.").build();
     }
 }

@@ -61,4 +61,29 @@ public class SensorResource {
         }
         return new SensorReadingResource(id);
     }
+    
+    @DELETE
+    @Path("/{id}")
+    public Response delete(@PathParam("id") String id) {
+        // 1. Find the sensor
+        Sensor s = store.sensors.get(id);
+        if (s == null) {
+            throw new NotFoundException("Sensor " + id + " not found.");
+        }
+
+        // 2. TASK 3.1: Maintain Integrity 
+        // We must remove the sensor ID from the Room's list before deleting the sensor
+        String roomId = s.getRoomId();
+        if (store.rooms.containsKey(roomId)) {
+            store.rooms.get(roomId).getSensorIds().remove(id);
+        }
+
+        // 3. Remove the sensor from the main map
+        store.sensors.remove(id);
+
+        // 4. Return the "Proper" message format we discussed
+        return Response.ok("Sensor " + id + " has been successfully removed from Room " + roomId).build();
+    }
+    
+  
 }

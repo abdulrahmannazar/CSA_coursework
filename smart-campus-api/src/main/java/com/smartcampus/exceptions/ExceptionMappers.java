@@ -45,8 +45,12 @@ public class ExceptionMappers {
         @Override
         public Response toResponse(NotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(Map.of("error", "Not Found", "message", e.getMessage()))
-                    .type(MediaType.APPLICATION_JSON).build();
+                    .entity(Map.of(
+                        "error", "Not Found", 
+                        "message", e.getMessage() // This will say "Room LIB-101 not found"
+                    ))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
         }
     }
     
